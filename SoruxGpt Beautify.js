@@ -2,7 +2,7 @@
 // @name         SoruxGpt Beautify
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      2024-03-21_a4
+// @version      2024-03-21_a5
 // @description  beautify for soruxgpt.com
 // @author       scarletborder
 // @match        *://user.soruxgpt.com/*
@@ -10,43 +10,111 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // ==/UserScript==
-
 // global
+
+// var latest_index = "";
+var user_id = -1;
+var recommend_code = "";
+
+///////////////////////////////////////////////////////////////////////
+
 function SetBKUrl(bk_url) {
     GM.setValue("sorux_bk_url", bk_url)
 }
+
+async function GetBKUrlAndCombine() {
+    return 'url("' + (await GM.getValue("sorux_bk_url", "")) + '")';
+}
+
 function GetBKUrlThenSet(element) {
     return GM.getValue("sorux_bk_url", "").then(data => {
         element.style.backgroundImage = 'url("' + data + '")';
         return
     });
 }
+function waitForElm(selector) {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
 
+        const observer = new MutationObserver(mutations => {
+            if (document.querySelector(selector)) {
+                resolve(document.querySelector(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
+///////////////////////////////////////////////////////////////////
 // init 初始化函数
-(function () {
+(async function () {
     'use strict';
     // Your code here...
+    // 拦截响应
+    var originalSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function () {
+        // 全部请求相关信息
+        var self = this;
+
+        // 监听readystatechange事件
+        this.onreadystatechange = function () {
+            // 当readyState变为4时获取响应
+            if (self.readyState === 4) {
+                // self 里面就是请求的全部信息
+                // 对me?token的内容进行截获
+                if (user_id == -1 && self.responseURL.includes("user/me?token")) {
+                    var obj = JSON.parse(self.response)
+                    user_id = obj["Data"]["ID"]
+                    recommend_code = obj["Data"]["RecommendCode"]
+                }
+
+
+                // JSON.parse(self.response);可以获取到返回的数据
+            }
+        };
+
+        // 调用原始的send方法
+        originalSend.apply(this, arguments);
+    };
+
+
+    await Beautify()
     // 加载完成后执行的代码
-    Beautify()
+    const t = setInterval(async function () {
+        await Beautify()
+    }, 2000);
 
 })();
 
-function Beautify() {
-    switch (window.location.pathname) {
+async function Beautify() {
+    var current_index = window.location.pathname;
+    // if (current_index !== latest_index) {
+    // latest_index = current_index;
+    switch (current_index) {
         case "/login":
-            BeautifyLoginPage()
+            await BeautifyLoginPage()
             break;
-
         case "/":
-            BeautifyDashboard();
+            await BeautifyDashboard();
             break;
         default:
             break;
     }
+    // }
+
+    // setTimeout(500, await Beautify());
 
 }
-
-function BeautifyLoginPage() {
+///////////////////////////////////////////////////////////////////////////////////
+// login page
+///////////////////////////////////////////////////////////////////////////////////
+async function BeautifyLoginPage() {
     var bk_path = "#root > div";
     var bk_url = "";
     if (!document.getElementById("plugin_change_bk")) {
@@ -69,34 +137,24 @@ function BeautifyLoginPage() {
 
     }
 
-    waitForElm(bk_path).then((elm) => {
+    waitForElm(bk_path).then(async (elm) => {
         var Login_Page = document.querySelector(bk_path);
-        GetBKUrlThenSet(Login_Page)
+        Login_Page.style.backgroundImage = await GetBKUrlAndCombine()
     });
 }
 
-function waitForElm(selector) {
-    return new Promise(resolve => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
-        }
 
-        const observer = new MutationObserver(mutations => {
-            if (document.querySelector(selector)) {
-                resolve(document.querySelector(selector));
-                observer.disconnect();
-            }
-        });
+///////////////////////////////////////////////////////////////////////////////////
+// dashboard
+///////////////////////////////////////////////////////////////////////////////////
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    });
+function modify_my_info() {
+
 }
 
-function BeautifyDashboard() {
 
+
+async function BeautifyDashboard() {
     // 侧边栏
     //document.querySelector("#root > div > div > div.ant-layout.ant-layout-has-sider.css-1qhpsh8 > aside")
     var aside_path = "#root > div > div > div.ant-layout.ant-layout-has-sider.css-1qhpsh8 > aside";
@@ -113,8 +171,8 @@ function BeautifyDashboard() {
     // }
 
     // 主遮罩，设置成背景
-    waitForElm(bk_path).then((elm) => {
-        GetBKUrlThenSet(document.querySelector(bk_path));
+    waitForElm(bk_path).then(async (elm) => {
+        document.querySelector(bk_path).style.backgroundImage = await GetBKUrlAndCombine()
     });
     // document.querySelector("#root > div > div > div.ant-pro-layout-bg-list.css-rqfwn1").style.opacity = 0.5
     var card_path = "#root > div > div > div.ant-layout.css-1qhpsh8 > div > main > div";
@@ -123,6 +181,12 @@ function BeautifyDashboard() {
         for (var idx = 0, len = elementList.length; idx < len; idx++) {
             elementList[idx].style["background-color"] = 'rgba(255,255,255,0.4)';
         }
+    });
+    var personal_info_card = "#root > div > div > div.ant-layout.ant-layout-has-sider.css-1qhpsh8 > div.ant-pro-layout-container.css-rqfwn1 > main > div:nth-child(7) > div > div:nth-child(1) > div.ant-pro-card-body.css-rqfwn1 > div"
+
+
+    waitForElm(personal_info_card).then((elm) => {
+        elm.innerHTML = "用户ID:\t" + user_id + "</br>你的推荐码:\t" + recommend_code + "</br>你的API密钥已经隐藏，请前往[API管理]页面获得";
     });
 
 
