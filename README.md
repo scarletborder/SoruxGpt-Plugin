@@ -5,5 +5,6 @@ A Tampermonkey plugin to beautify plain soruxgpt.com page
 
 ## Features
 - Modify background image in the login page
+- Change Alpha in dashboard
 
 **More features is being developed**
