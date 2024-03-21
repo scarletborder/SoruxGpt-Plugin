@@ -2,7 +2,7 @@
 // @name         SoruxGpt Beautify
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      2024-03-21_a5
+// @version      2024-03-21_a6
 // @description  beautify for soruxgpt.com
 // @author       scarletborder
 // @match        *://user.soruxgpt.com/*
@@ -126,7 +126,8 @@ async function BeautifyLoginPage() {
             SetBKUrl(bk_url)
             if (bk_url) {
                 var Login_Page = document.querySelector(bk_path);
-                Login_Page.style["backgroundImage"] = 'url("' + bk_url + '")';
+                Login_Page.style.background = 'url("' + bk_url + '") no-repeat';
+                Login_Page.style["background-size"] = "cover";
             }
         });
 
@@ -139,7 +140,8 @@ async function BeautifyLoginPage() {
 
     waitForElm(bk_path).then(async (elm) => {
         var Login_Page = document.querySelector(bk_path);
-        Login_Page.style.backgroundImage = await GetBKUrlAndCombine()
+        Login_Page.style.background = await GetBKUrlAndCombine() + " no-repeat"
+        Login_Page.style["background-size"] = "cover"
     });
 }
 
@@ -172,7 +174,9 @@ async function BeautifyDashboard() {
 
     // 主遮罩，设置成背景
     waitForElm(bk_path).then(async (elm) => {
-        document.querySelector(bk_path).style.backgroundImage = await GetBKUrlAndCombine()
+        var dashboard_page = document.querySelector(bk_path);
+        dashboard_page.style.background = await GetBKUrlAndCombine() + " no-repeat"
+        dashboard_page.style["background-size"] = "cover"
     });
     // document.querySelector("#root > div > div > div.ant-pro-layout-bg-list.css-rqfwn1").style.opacity = 0.5
     var card_path = "#root > div > div > div.ant-layout.css-1qhpsh8 > div > main > div";
