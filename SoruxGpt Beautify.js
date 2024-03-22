@@ -179,11 +179,18 @@ async function BeautifyDashboard() {
         dashboard_page.style["background-size"] = "cover"
     });
     // document.querySelector("#root > div > div > div.ant-pro-layout-bg-list.css-rqfwn1").style.opacity = 0.5
-    var card_path = "#root > div > div > div.ant-layout.css-1qhpsh8 > div > main > div";
+    var card_path = "#root > div > div > div.ant-layout.css-1qhpsh8 > div > main";
     waitForElm(final_card_path).then((elm) => {
-        var elementList = document.querySelectorAll(card_path);
-        for (var idx = 0, len = elementList.length; idx < len; idx++) {
-            elementList[idx].style["background-color"] = 'rgba(255,255,255,0.4)';
+        var main_element = document.querySelector(card_path);
+
+        var elemList2 = main_element.querySelectorAll("div.ant-pro-card");
+        for (var idx = 0, len = elemList2.length; idx < len; idx++) {
+            elemList2[idx].style["background-color"] = 'rgba(255,255,255,0.3)';
+        }
+
+        var elemList2 = main_element.querySelectorAll("div.ant-pro-card-body")
+        for (var idx = 0, len = elemList2.length; idx < len; idx++) {
+            elemList2[idx].style["background-color"] = 'rgba(255,255,255,0)';
         }
     });
     var personal_info_card = "#root > div > div > div.ant-layout.ant-layout-has-sider.css-1qhpsh8 > div.ant-pro-layout-container.css-rqfwn1 > main > div:nth-child(7) > div > div:nth-child(1) > div.ant-pro-card-body.css-rqfwn1 > div"
