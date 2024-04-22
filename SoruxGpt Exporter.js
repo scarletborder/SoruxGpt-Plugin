@@ -2,7 +2,7 @@
 // @name         SoruxGpt Exporter
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      2024-4-22_a1
+// @version      2024-4-22_a2
 // @description  Export function for soruxgpt.com
 // @author       scarletborder
 // @match        *://chat-o.soruxgpt.com/*
@@ -199,19 +199,26 @@ function generateMarkdown(sortedData, title) {
         // 添加二级标题
         markdownText += "## " + entry.role + "\n";  // role 的值
 
+
         // 检查内容类型并相应格式化
         if (entry.contentType === "text") {
             // 文本类型内容，直接加入parts内容
-            entry.parts.forEach(function (part) {
-                markdownText += part + "\n";
-            });
+            if (Array.isArray(entry.parts)) {
+                entry.parts.forEach(function (part) {
+                    markdownText += part + "\n";
+                });
+            }
+
         } else if (entry.contentType === "code") {
             // 代码类型内容，添加代码块
-            markdownText += "```" + (entry.language || "") + "\n";  // 添加语言标记，如果有的话
-            entry.parts.forEach(function (part) {
-                markdownText += part + "\n";
-            });
-            markdownText += "```\n";
+            if (Array.isArray(entry.parts)) {
+                markdownText += "```" + (entry.language || "") + "\n";  // 添加语言标记，如果有的话
+                entry.parts.forEach(function (part) {
+                    markdownText += part + "\n";
+                });
+                markdownText += "```\n";
+            }
+
         }
     });
 
