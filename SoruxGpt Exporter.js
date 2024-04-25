@@ -2,13 +2,14 @@
 // @name         SoruxGpt Exporter
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      3
+// @version      3.1
 // @description  Export function for soruxgpt.com
 // @author       scarletborder
 // @match        *://chat-*.soruxgpt.com/*
 // @icon         https://s2.loli.net/2024/04/22/3Pazvy9poqBYOrW.png
 // @grant        GM_registerMenuCommand
-// @updateURL https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
+// @downloadURL  https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
+// @updateURL    https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
 // ==/UserScript==
 // global
 var has_shown = false; // 目前是否展示工具栏
