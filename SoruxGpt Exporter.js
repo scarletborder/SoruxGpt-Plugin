@@ -2,10 +2,10 @@
 // @name         SoruxGpt Exporter
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      3.1
+// @version      3.2
 // @description  Export function for soruxgpt.com
 // @author       scarletborder
-// @match        *://chat-*.soruxgpt.com/*
+// @match        *://chat-o.soruxgpt.com/*
 // @icon         https://s2.loli.net/2024/04/22/3Pazvy9poqBYOrW.png
 // @grant        GM_registerMenuCommand
 // @downloadURL  https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
