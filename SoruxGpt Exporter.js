@@ -2,13 +2,12 @@
 // @name         SoruxGpt Exporter
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      2
+// @version      3
 // @description  Export function for soruxgpt.com
 // @author       scarletborder
-// @match        *://chat-o.soruxgpt.com/*
+// @match        *://chat-*.soruxgpt.com/*
 // @icon         https://s2.loli.net/2024/04/22/3Pazvy9poqBYOrW.png
-// @grant        GM_setValue
-// @grant        GM_getValue
+// @grant        GM_registerMenuCommand
 // @updateURL https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
 // ==/UserScript==
 // global
@@ -193,7 +192,7 @@ async function generateMarkdown(obj) {
         foot_text += "\n";
     }
     if (head.has_file) {
-        head.text += "本文档还有文件链接，请及时保存\n\n";
+        head.text += "本文档含有文件链接，请及时保存\n\n";
     }
     head.text += "首次对话时间:\t" + TimeConvert(obj.create_time) + "\n\n" +
         "最近对话时间:\t" + TimeConvert(obj.update_time) +
@@ -278,6 +277,22 @@ function waitForElm(selector) {
         }, 2000)
     }
     );
+
+    // 添加menu command
+    GM_registerMenuCommand("Export as JSON", async function (params) {
+        if (!JudgeCurrentUrl()) {
+            console.warn("请先打开对话");
+            return;
+        }
+        GetBlobJson(JudgeCurrentUrl(), 1);
+    }, "j");
+    GM_registerMenuCommand("Export as Markdown", async function (params) {
+        if (!JudgeCurrentUrl()) {
+            console.warn("请先打开对话");
+            return;
+        }
+        GetBlobJson(JudgeCurrentUrl(), 2);
+    }, "m");
 
 
 

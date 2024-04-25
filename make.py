@@ -2,13 +2,12 @@ prefix = """// ==UserScript==
 // @name         SoruxGpt Exporter
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      2
+// @version      3
 // @description  Export function for soruxgpt.com
 // @author       scarletborder
-// @match        *://chat-o.soruxgpt.com/*
+// @match        *://chat-*.soruxgpt.com/*
 // @icon         https://s2.loli.net/2024/04/22/3Pazvy9poqBYOrW.png
-// @grant        GM_setValue
-// @grant        GM_getValue
+// @grant        GM_registerMenuCommand
 // @updateURL https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
 // ==/UserScript==
 """

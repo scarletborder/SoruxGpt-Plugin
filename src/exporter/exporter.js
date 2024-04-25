@@ -266,6 +266,22 @@ function waitForElm(selector) {
     }
     );
 
+    // 添加menu command
+    GM_registerMenuCommand("Export as JSON", async function (params) {
+        if (!JudgeCurrentUrl()) {
+            console.warn("请先打开对话");
+            return;
+        }
+        GetBlobJson(JudgeCurrentUrl(), 1);
+    }, "j");
+    GM_registerMenuCommand("Export as Markdown", async function (params) {
+        if (!JudgeCurrentUrl()) {
+            console.warn("请先打开对话");
+            return;
+        }
+        GetBlobJson(JudgeCurrentUrl(), 2);
+    }, "m");
+
 
 
 })();
