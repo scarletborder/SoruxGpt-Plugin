@@ -255,16 +255,18 @@ function waitForElm(selector) {
     'use strict';
     // var copydocument = document;
     // Your code here...
-    has_shown = false;
-    window.addEventListener("load", function () {
-        setTimeout(async function () {
-            // document = copydocument;
-            // console.log("haode")
-            await AddExportModel();
-            AddExportButton();
-        }, 2000)
-    }
-    );
+
+    // disable model in html
+    // has_shown = false;
+    // window.addEventListener("load", function () {
+    //     setTimeout(async function () {
+    //         // document = copydocument;
+    //         // console.log("haode")
+    //         await AddExportModel();
+    //         AddExportButton();
+    //     }, 2000)
+    // }
+    // );
 
     // 添加menu command
     GM_registerMenuCommand("Export as JSON", async function (params) {

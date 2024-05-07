@@ -2,7 +2,7 @@ prefix = """// ==UserScript==
 // @name         SoruxGpt Exporter
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      3.2
+// @version      3.3
 // @description  Export function for soruxgpt.com
 // @author       scarletborder
 // @match        *://chat-o.soruxgpt.com/*
