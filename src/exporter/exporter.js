@@ -2,7 +2,7 @@
 var has_shown = false; // 目前是否展示工具栏
 var my_chatgpt_account_id = "";
 var my_cookie = "";
-
+var auth_token = "";
 
 async function AddExportModel() {
     let scb_modal = document.createElement("div");
@@ -113,8 +113,8 @@ async function GetBlobJson(url_list, down_method) {
 
     var myHeaders = new Headers();
 
-    const regex = /_account=([^;]+)/;
-    const match = document.cookie.match(regex);
+    var regex = /_account=([^;]+)/;
+    var match = document.cookie.match(regex);
     if (match) {
         // console.log(match[1]); // 输出匹配的值
         my_chatgpt_account_id = match[1];
@@ -122,6 +122,26 @@ async function GetBlobJson(url_list, down_method) {
     } else {
         console.log("No match found.");
     }
+
+
+    // regex = /__Secure-next-auth.session-token=([^;]+)/;
+    // match = document.cookie.match(regex);
+    // if (match) {
+    //     // console.log(match[1]); // 输出匹配的值
+    //     my_chatgpt_account_id = match[1];
+    //     myHeaders.append("Authorization", my_chatgpt_account_id);
+    // } else {
+    //     console.log("No match found.");
+    // }
+
+    // myHeaders.append("Authorization", auth_token)
+    // await gmCookie("https://chatgpt.com/").then(await (async cookie => {
+    //     console.log(cookie)
+    // }))
+
+
+    myHeaders.append("Authorization", auth_token);
+
     my_cookie = document.cookie;
     myHeaders.append("cookie", my_cookie);
 
@@ -283,7 +303,25 @@ function waitForElm(selector) {
         }
         GetBlobJson(JudgeCurrentUrl(), 2);
     }, "m");
+    // GM_cookie.list({ name: "__Secure-next-auth.session-token" }, function (cookies, error) {
+    //     if (error) {
+    //         console.error(error);
+    //     } else {
+    //     }
+    //     auth_token = "Bearer\n" + cookies[0].value;
+    // });
+    var once = false;
+    unsafeWindow.fetch = (...arg) => {
+        // console.log('fetch arg', ...arg);
 
-
-
+        if (arg.length >= 2 && ("headers" in arg[1]) && ("Authorization" in arg[1]["headers"]) && (!once)) {
+            // //console.log('拦截直播流')
+            // return new Promise(() => {
+            //     throw new Error();
+            // });
+            once = true;
+            auth_token = arg[1]["headers"]["Authorization"]
+        }
+        return originFetch(...arg);
+    }
 })();

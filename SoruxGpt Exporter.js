@@ -2,20 +2,76 @@
 // @name         SoruxGpt Exporter
 // @namespace    http://scarletborders.top/
 // @license      MIT
-// @version      3.3
+// @version      4.0
 // @description  Export function for soruxgpt.com
 // @author       scarletborder
 // @match        *://chat-o.soruxgpt.com/*
+// @match        *://chatgpt.com/*
 // @icon         https://s2.loli.net/2024/04/22/3Pazvy9poqBYOrW.png
 // @grant        GM_registerMenuCommand
+// @grant        GM_cookie
+// @grant        unsafeWindow
 // @downloadURL  https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
 // @updateURL    https://raw.githubusercontent.com/scarletborder/SoruxGpt-Plugin/main/SoruxGpt%20Exporter.js
 // ==/UserScript==
+// ==UserScript==
+// @name         gmCookie
+// @author       cxxjackie
+// @version      1.0.1
+// ==/UserScript==
+
+function gmCookie(url) {
+    if (!window.GM_cookie) return console.error('缺少GM_cookie，请先通过@grant引入！');
+    return new Promise((resolve, reject) => {
+        GM_cookie('list', { url }, (cookie, error) => {
+            if (error || !Array.isArray(cookie)) {
+                reject(error);
+            } else {
+                const promises = [];
+                async function alldone() {
+                    await Promise.all(promises);
+                    promises.length = 0;
+                }
+                function proxySet(target, prop, value) {
+                    if (prop !== 'name' && target[prop] !== value) {
+                        promises.push(new Promise(resolve => {
+                            GM_cookie('set', { ...target, url }, resolve);
+                        }));
+                        target[prop] = value;
+                    }
+                }
+                const cookieObj = { $alldone: alldone };
+                for (const item of cookie) {
+                    cookieObj[item.name] = new Proxy(item, { set: proxySet });
+                }
+                resolve(new Proxy(cookieObj, {
+                    set: function (target, prop, value) {
+                        value.name = prop;
+                        promises.push(new Promise(resolve => {
+                            GM_cookie('set', { ...value, url }, resolve);
+                        }));
+                        target[prop] = new Proxy(value, { set: proxySet });
+                    },
+                    deleteProperty: function (target, prop) {
+                        promises.push(new Promise(resolve => {
+                            GM_cookie('delete', { ...target[prop], url }, resolve);
+                        }));
+                        return delete target[prop];
+                    }
+                }));
+            }
+        });
+    });
+}
+
+const originFetch = fetch;
+
+
 // global
 var has_shown = false; // 目前是否展示工具栏
 var my_chatgpt_account_id = "";
 var my_cookie = "";
-
+var auth_token = "";
 
 async function AddExportModel() {
     let scb_modal = document.createElement("div");
@@ -126,8 +182,8 @@ async function GetBlobJson(url_list, down_method) {
 
     var myHeaders = new Headers();
 
-    const regex = /_account=([^;]+)/;
-    const match = document.cookie.match(regex);
+    var regex = /_account=([^;]+)/;
+    var match = document.cookie.match(regex);
     if (match) {
         // console.log(match[1]); // 输出匹配的值
         my_chatgpt_account_id = match[1];
@@ -135,6 +191,26 @@ async function GetBlobJson(url_list, down_method) {
     } else {
         console.log("No match found.");
     }
+
+
+    // regex = /__Secure-next-auth.session-token=([^;]+)/;
+    // match = document.cookie.match(regex);
+    // if (match) {
+    //     // console.log(match[1]); // 输出匹配的值
+    //     my_chatgpt_account_id = match[1];
+    //     myHeaders.append("Authorization", my_chatgpt_account_id);
+    // } else {
+    //     console.log("No match found.");
+    // }
+
+    // myHeaders.append("Authorization", auth_token)
+    // await gmCookie("https://chatgpt.com/").then(await (async cookie => {
+    //     console.log(cookie)
+    // }))
+
+
+    myHeaders.append("Authorization", auth_token);
+
     my_cookie = document.cookie;
     myHeaders.append("cookie", my_cookie);
 
@@ -296,9 +372,27 @@ function waitForElm(selector) {
         }
         GetBlobJson(JudgeCurrentUrl(), 2);
     }, "m");
+    // GM_cookie.list({ name: "__Secure-next-auth.session-token" }, function (cookies, error) {
+    //     if (error) {
+    //         console.error(error);
+    //     } else {
+    //     }
+    //     auth_token = "Bearer\n" + cookies[0].value;
+    // });
+    var once = false;
+    unsafeWindow.fetch = (...arg) => {
+        // console.log('fetch arg', ...arg);
 
-
-
+        if (arg.length >= 2 && ("headers" in arg[1]) && ("Authorization" in arg[1]["headers"]) && (!once)) {
+            // //console.log('拦截直播流')
+            // return new Promise(() => {
+            //     throw new Error();
+            // });
+            once = true;
+            auth_token = arg[1]["headers"]["Authorization"]
+        }
+        return originFetch(...arg);
+    }
 })();
 // code  : 代码执行器，他会跟一个儿子表示其执行结果
 function code_rec(obj, head, main, foot) {
